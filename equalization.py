@@ -1,8 +1,6 @@
 from sionna.phy.ofdm import LMMSEEqualizer, MFEqualizer, ZFEqualizer
 def equalization(rx_freq, H_est, method_idx, rg, sm, err_var, no):
-    """
-    rx_freq, H_est: (B, N) 或 (N,) 复数 torch/numpy
-    """
+
 
     if method_idx == 0:
         lmmse_equ = LMMSEEqualizer(rg, sm)
