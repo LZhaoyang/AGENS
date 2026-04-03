@@ -1,5 +1,5 @@
 # AGENS
-## Release Status 
+ 
 This repository is an official codebase accompanying the paper **"Agentic Link Construction for Environment and Intent Aware 6G Communication"**, with an emphasis on reproducibility and extensibility.
 
 At the current public release stage, we provide the most essential and independently reusable components of the framework:
