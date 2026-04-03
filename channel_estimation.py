@@ -74,12 +74,12 @@ def estimate_batch_covariance(h_samples):
     B_flat = B * RX * TX * BS 
     h_samples = tf.transpose(h_samples, [0, 2, 5, 6, 1, 3, 4])
     h_samples = tf.reshape(h_samples, [B_flat, UT, P, T])
-    # 频域
+
     h_freq = tf.transpose(h_samples, [0, 1, 3, 2])
     freq_cov = tf.reduce_mean(tf.matmul(h_freq, h_freq, adjoint_b=True), axis=(0,1))
-    # 时间域
+
     time_cov = tf.reduce_mean(tf.matmul(h_samples, h_samples, adjoint_b=True), axis=(0,1))
-    # 空间域
+
     h_space = tf.transpose(h_samples, [0, 2, 1, 3])
     space_cov = tf.reduce_mean(tf.matmul(h_space, h_space, adjoint_b=True), axis=(0,1))
     return freq_cov, time_cov, space_cov
@@ -94,7 +94,7 @@ def select_effective_subcarriers_h(h, rg):
         dc = K // 2                                  # 16
         idx = tf.boolean_mask(idx, tf.not_equal(idx, dc))
 
-    # 取最后一维（子载波维）
+
     h_eff = tf.gather(h, idx, axis=-1)
     return h_eff, idx
 
