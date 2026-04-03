@@ -61,19 +61,19 @@ class SegmentedPolarEncoder:
                 pad = tf.zeros([B_flat, pad_len], dtype=bits.dtype)
                 seg = tf.concat([seg, pad], axis=-1)  # [B_flat, k_seg]
 
-            # ---- Polar 编码 ----
+
             seg_coded = self.seg_encoder(seg)  # [B_flat, n_seg]
             coded_segments.append(seg_coded)
 
             start = end
 
-        # ---- 拼接所有段 ----
+
         coded_concat = tf.concat(coded_segments, axis=-1)  # [B_flat, num_segments*n_seg]
 
-        # ---- 截断到 n_total ----
+
         coded_final = coded_concat[:, :n_total]            # shape [B_flat, n_total]
 
-        # ---- reshape 回原批次维 ----
+
         out_shape = tf.concat([orig_shape[:-1], [n_total]], axis=0)
         coded_final = tf.reshape(coded_final, out_shape)
        
@@ -84,7 +84,7 @@ class SegmentedPolarDecoder:
         self.k_seg = k_seg
         self.n_seg = n_seg
 
-        # 单段解码器
+
         if seg_encoder == None:
             self.seg_encoder = Polar5GEncoder(k=k_seg, n=n_seg)
         else:
@@ -98,35 +98,33 @@ class SegmentedPolarDecoder:
         """
 
 
-        # 需要的段数
+
         num_segments = int(np.ceil(k_total / self.k_seg))
 
         decoded_segments = []
         start = 0
 
         for i in range(num_segments):
-            end = start + self.n_seg   # 每段取 n_seg 长度
+            end = start + self.n_seg  
 
-            # ---- 取段 (保持前面所有维度不变) ----
+     
             seg_llr = llr[..., start:end]   # shape [..., n_seg]
 
-            # 如果最后段不够 n_seg，需要补零
             actual_len = seg_llr.shape[-1]
             if actual_len < self.n_seg:
                 pad_len = self.n_seg - actual_len
                 pad = tf.zeros(seg_llr.shape[:-1] + (pad_len,), dtype=seg_llr.dtype)
                 seg_llr = tf.concat([seg_llr, pad], axis=-1)
 
-            # ---- 解码（shape [..., k_seg]）----
+         
             seg_decoded = self.seg_decoder(seg_llr)
 
             decoded_segments.append(seg_decoded)
             start = end
 
-        # ---- 拼接所有段，沿最后一维 ----
+
         decoded_concat = tf.concat(decoded_segments, axis=-1)  # shape [..., num_segments*k_seg]
 
-        # ---- 截断到 k_total ----
         decoded_final = decoded_concat[..., :k_total]
 
         return decoded_final
